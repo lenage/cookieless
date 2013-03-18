@@ -1,40 +1,28 @@
 # -*- encoding: utf-8 -*-
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'cookieless/version'
 
-Gem::Specification.new do |s|
-  s.name = "cookieless"
-  s.version = "0.2.4.3"
+Gem::Specification.new do |gem|
+  gem.name = "cookieless"
+  gem.version = Rack::Cookieless::VERSION
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Jinzhu", "chrisboy333"]
-  s.date = "2012-01-06"
-  s.description = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application"
-  s.email = "wosmvp@gmail.com"
-  s.extra_rdoc_files = ["LICENSE.txt", "README.rdoc"]
-  s.files = ["LICENSE.txt", "README.rdoc"]
-  s.homepage = "http://github.com/jinzhu/cookieless"
-  s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.10"
-  s.summary = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application"
+  gem.authors = ["Jinzhu", "chrisboy333"]
+  gem.date = "2012-01-06"
+  gem.email = "wosmvp@gmail.com"
+  gem.files = `git ls-files`.split($/)
+  gem.description = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application"
+  gem.summary = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application"
+  gem.homepage = "http://github.com/jinzhu/cookieless"
 
-  if s.respond_to? :specification_version then
-    s.specification_version = 3
+  gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
+  gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
+  gem.require_paths = ["lib"]
 
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
-      s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
-      s.add_development_dependency(%q<rcov>, [">= 0"])
-    else
-      s.add_dependency(%q<nokogiri>, [">= 0"])
-      s.add_dependency(%q<bundler>, ["~> 1.0.0"])
-      s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
-      s.add_dependency(%q<rcov>, [">= 0"])
-    end
-  else
-    s.add_dependency(%q<nokogiri>, [">= 0"])
-    s.add_dependency(%q<bundler>, ["~> 1.0.0"])
-    s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
-    s.add_dependency(%q<rcov>, [">= 0"])
-  end
+  gem.add_runtime_dependency 'nokogiri'
+
+  gem.add_development_dependency 'rspec', '2.12.0'
+  gem.add_development_dependency 'capybara', '1.1.4'
+  gem.add_development_dependency 'racktest_cookie_disabler'
+  gem.add_development_dependency 'rails', '3.2.12'
 end
