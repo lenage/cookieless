@@ -7,6 +7,13 @@ feature "Cookieless" , %q{
   background { Capybara.app = TestRailsApp::Application}
   scenario "with cookies enable" do
     page.visit '/'
-    page.should have_content "Cookie found"
+    page.click_on "Link"
+    page.should have_content "Session found"
+  end
+  scenario "with cookies disabled" do
+    page.disable_cookies(true)
+    page.visit '/'
+    page.click_on "Link"
+    page.should have_content "Session found"
   end
 end

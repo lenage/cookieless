@@ -1,12 +1,11 @@
 require_relative"../../lib/cookieless/functions"
-
+require "test_store"
 class TestFunctions
   include Rack::Cookieless::Functions
   attr_accessor :response
   def initialize
     @env={}
     @options={}
-    @header={}
   end
 
   def env
@@ -17,28 +16,6 @@ class TestFunctions
     @options
   end
 
-  def header
-    @header
-  end
-end
-
-class TestStore
-  attr_accessor :store
-  def initialize
-    @store = {}
-  end
-
-  def exist?(id)
-    @store.include?(id)
-  end
-
-  def read(id)
-    @store[id]
-  end
-
-  def write(id,val)
-    @store[id]=val
-  end
 end
 
 describe "Functions" do
@@ -229,12 +206,12 @@ describe "Functions" do
 
   describe "#process_page?" do
     it "returns true for a html page" do
-      @testclass.header["Content-Type"]= "text/html"
-      @testclass.process_page?.should == true
+      header = {"Content-Type" => "text/html"}
+      @testclass.process_page?(header).should == true
     end
     it "returns false for other content types" do
-      @testclass.header["Content-Type"]= "application/pdf"
-      @testclass.process_page?.should == false
+      header = {"Content-Type" => "application/pdf"}
+      @testclass.process_page?(header).should == false
     end
   end
 
@@ -242,13 +219,11 @@ describe "Functions" do
     it "checks if the page has a body" do
       content = mock(:content)
       content.stub! :body
-      @testclass.response = content
-      @testclass.page_has_body?.should be true
+      @testclass.page_has_body?(content).should be true
     end
 
     it "returns false if no body" do
-      @testclass.response = Object.new
-      @testclass.page_has_body?.should be false
+      @testclass.page_has_body?(Object.new).should be false
     end
   end
 

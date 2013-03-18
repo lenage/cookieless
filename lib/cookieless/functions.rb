@@ -71,7 +71,7 @@ module Rack
       end
 
       def cache_cookie_by_session_id(session_id, cookie)
-        cache_store.write(generate_cache_id(session_id), cookie)
+        cache_store.write(generate_cache_id(session_id), cookie) if cookie
       end
 
       def convert_url(url, session_id)
@@ -89,11 +89,11 @@ module Rack
         end
       end
 
-      def process_page?
+      def process_page?(header)
         !(header["Content-Type"].to_s.downcase =~ /html/).nil?
       end
 
-      def page_has_body?
+      def page_has_body?(response)
         response.respond_to?(:body)
       end
 

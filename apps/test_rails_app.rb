@@ -9,28 +9,25 @@ module TestRailsApp
 
     routes.draw do
       get  '/'   => 'test_rails_app/sessions#new'
-      get '/test_cookie' => 'test_rails_app/sessions#test_cookie'
+      get '/test_session' => 'test_rails_app/sessions#test_session'
     end
   end
 
   class SessionsController < ActionController::Base
+    prepend_view_path 'apps'
     def new
-      if cookies['cookie_test'].blank?
-        cookies['cookie_test'] = Time.now
-        redirect_to('/test_cookie')
-      else
-        render :text => "Cookie found"
-      end
+      session[:test] = "Found"
     end
 
-    def test_cookie
-      if cookies['cookie_test'].blank?
-        render :text => "Cookie not found"
+    def test_session
+      if session[:test].blank?
+        render :text => "Session not found"
       else
-        render :text => "Cookie found"
+        render :text => "Session found"
       end
     end
   end
 end
 
-Rails.logger = Logger.new('/dev/null')
+ Rails.logger = Logger.new('/dev/null')
+ # Rails.logger = Logger.new(STDOUT)
