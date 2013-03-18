@@ -2,9 +2,11 @@ require_relative"../../lib/cookieless/functions"
 
 class TestFunctions
   include Rack::Cookieless::Functions
+  attr_accessor :response
   def initialize
     @env={}
     @options={}
+    @header={}
   end
 
   def env
@@ -13,6 +15,10 @@ class TestFunctions
 
   def options
     @options
+  end
+
+  def header
+    @header
   end
 end
 
@@ -218,6 +224,82 @@ describe "Functions" do
     end
     it "returns nil of no url given" do
       @testclass.fix_url(nil, "").should be nil
+    end
+  end
+
+  describe "#process_page?" do
+    it "returns true for a html page" do
+      @testclass.header["Content-Type"]= "text/html"
+      @testclass.process_page?.should == true
+    end
+    it "returns false for other content types" do
+      @testclass.header["Content-Type"]= "application/pdf"
+      @testclass.process_page?.should == false
+    end
+  end
+
+  describe "#page_has_body?" do
+    it "checks if the page has a body" do
+      content = mock(:content)
+      content.stub! :body
+      @testclass.response = content
+      @testclass.page_has_body?.should be true
+    end
+
+    it "returns false if no body" do
+      @testclass.response = Object.new
+      @testclass.page_has_body?.should be false
+    end
+  end
+
+  describe "#content_is_arrayed?" do
+    it "returns false if not an array" do
+      @testclass.content_is_arrayed?("").should be false
+    end
+    it "returns false if the array is empty" do
+      @testclass.content_is_arrayed?([]).should be false
+    end
+    it "returns false if the first element is of the wrong type" do
+      @testclass.content_is_arrayed?([5]).should be false
+    end
+    it "returns true if the first element is of the correct type" do
+      @testclass.content_is_arrayed?(["test"]).should be true
+    end
+  end
+
+  context "body processing" do
+    before do
+      @doc =<<EOF
+<html>
+<body>
+<a href="http://www.example.com">link</a>
+<form action="shop">
+</form>
+</body>
+</html>
+EOF
+    @body_doc = Nokogiri::HTML(@doc)
+    end
+
+    describe "#process_href" do
+      it "rewtrites the hrefs in the document adding our session key" do
+        doc=@testclass.process_href(@body_doc,"1234")
+        doc.to_html.include?("http://www.example.com?session_id=1234").should == true
+      end
+    end
+
+    describe "#process_form" do
+      it "adds a hidden field to the form" do
+        doc=@testclass.process_form(@body_doc,"1234")
+        doc.to_html.include?("<input type=\"hidden\" name=\"session_id\" value=\"1234\">").should == true
+      end
+    end
+    describe "#process_body" do
+      it "replaces the necessary references by adding our session key" do
+        @testclass.process_body(@doc,"1234")
+        @doc.include?("http://www.example.com?session_id=1234").should == true
+        @doc.include?("<input type=\"hidden\" name=\"session_id\" value=\"1234\">").should == true
+      end
     end
   end
 end

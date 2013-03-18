@@ -1,4 +1,5 @@
 require "rack"
+require "nokogiri"
 module Rack
   module Cookieless
     module Functions
@@ -75,7 +76,7 @@ module Rack
 
       def convert_url(url, session_id)
         uri = URI.parse(URI.escape(url))
-        if uri.scheme.empty? || uri.scheme.to_s =~ /http/
+        if (uri.scheme||"").empty? || uri.scheme.to_s =~ /http/
           query = Rack::Utils.parse_query(uri.query)
           uri.query = Rack::Utils.build_query(query.merge({session_key => session_id}))
         end
@@ -89,7 +90,7 @@ module Rack
       end
 
       def process_page?
-        header["Content-Type"].to_s.downcase =~ /html/
+        !(header["Content-Type"].to_s.downcase =~ /html/).nil?
       end
 
       def page_has_body?
@@ -99,22 +100,17 @@ module Rack
       def content_is_arrayed?(content)
         return false unless content.is_a?(Array)
         return false if content.size == 0
-        [ActionView::OutputBuffer, String].detect do |klass|
-          content.is_a?(klass)
+        result = %w{ActionView::OutputBuffer String}.detect do |klass|
+          content[0].class.to_s == klass
         end
+        !result.nil?
       end
 
-      def process_body(body, session_id)
-        body_doc = Nokogiri::HTML(body)
-        process_href(body_doc, session_id)
-        process_form(body_doc, session_id)
-        body.replace body_doc.to_html
-      end
-
-      def process_href(doc, session_id)
+     def process_href(doc, session_id)
         doc.css("a").map do |a|
-          fix_url(a["href"],session_id)
+          a["href"] = convert_url(a["href"],session_id)
         end
+        doc
       end
 
       def process_form(doc, session_id)
@@ -124,6 +120,14 @@ module Rack
             form.add_child("<input type='hidden'  name='#{session_key}' value='#{session_id}'>")
           end
         end
+        doc
+      end
+
+      def process_body(body, session_id)
+        body_doc = Nokogiri::HTML(body)
+        body_doc = process_href(body_doc, session_id)
+        body_doc = process_form(body_doc, session_id)
+        body.replace body_doc.to_html
       end
     end
   end
