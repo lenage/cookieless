@@ -10,6 +10,7 @@ module TestRailsApp
     routes.draw do
       get  '/'   => 'test_rails_app/sessions#new'
       get '/test_session' => 'test_rails_app/sessions#test_session'
+      post '/test_form' => 'test_rails_app/sessions#test_session'
     end
   end
 
@@ -29,5 +30,5 @@ module TestRailsApp
   end
 end
 
- Rails.logger = Logger.new('/dev/null')
- # Rails.logger = Logger.new(STDOUT)
+Rails.logger = Logger.new('/dev/null')
+# Rails.logger = Logger.new(STDOUT)
