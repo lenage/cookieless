@@ -137,4 +137,87 @@ describe "Functions" do
         @testclass.env["HTTP_COOKIE"].should== "I am cached"
       end
   end
+
+  describe "#session_key" do
+    it "returns 'session_id' as default" do
+      @testclass.session_key.should == "session_id"
+    end
+    it "returns the 'session_id' set as option" do
+      @testclass.options[:session_id] = "my_key"
+      @testclass.session_key.should == "my_key"
+    end
+  end
+
+  describe "#get_session_id_from_query" do
+    it "parses the session value from a query string" do
+      @testclass.get_session_id_from_query("l=en&session_id=test&q=10").should == "test"
+    end
+  end
+
+  describe "#path_parameters"do
+    it "returns the request.path_parameters if set" do
+      @testclass.env['action_dispatch.request.path_parameters'] = "ok"
+      @testclass.path_parameters.should == "ok"
+    end
+    it "returns an empty hash if there are none" do
+      @testclass.path_parameters.should == {}
+    end
+  end
+
+  describe "#exclude_formats" do
+    it "returns a list of extensions" do
+      @testclass.exclude_formats.size.should > 0
+    end
+
+    it "returns a given extension in the list" do
+      @testclass.options[:exclude_formats]= "xslx"
+      @testclass.exclude_formats.include?("xslx").should be true
+    end
+
+    it "given a list will add all of them" do
+      @testclass.options[:exclude_formats]= %w{ xslx docx}
+      @testclass.exclude_formats.include?("xslx").should be true
+      @testclass.exclude_formats.include?("docx").should be true
+    end
+  end
+
+  describe "#page_warrants_cookie?" do
+    it "returns true if this is not an excluded page format" do
+      @testclass.options[:exclude_formats]= %w{ xslx docx}
+      @testclass.env['action_dispatch.request.path_parameters'] = {:action => "show", :format => "html"}
+      @testclass.page_warrants_cookie?.should == true
+    end
+    it "returns false if this is an excluded page format" do
+      @testclass.options[:exclude_formats]= %w{ xslx docx}
+      @testclass.env['action_dispatch.request.path_parameters'] = {:action => "show", :format => "docx"}
+      @testclass.page_warrants_cookie?.should == false
+    end
+  end
+
+  describe "#cache_cookie_by_session_id" do
+    it "stores the cookie in the cache" do
+      testStore = TestStore.new
+      @testclass.options[:cache_store] = testStore
+      @testclass.cache_cookie_by_session_id("id", "my_cookie")
+      testStore.store.size.should == 1
+      testStore.store.first[1].should == "my_cookie"
+    end
+  end
+
+  describe "#convert_url" do
+    it "add the session to the querystring" do
+      @testclass.fix_url("http://www.example.com", "1234").should == "http://www.example.com?session_id=1234"
+    end
+  end
+
+  describe "#fix_url" do
+    it "adds the session id, replacing the current value of the string" do
+      url = "http://www.example.com"
+      @testclass.fix_url(url, "1234")
+      url.should == "http://www.example.com?session_id=1234"
+    end
+    it "returns nil of no url given" do
+      @testclass.fix_url(nil, "").should be nil
+    end
+  end
 end

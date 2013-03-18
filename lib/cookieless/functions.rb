@@ -57,35 +57,35 @@ module Rack
         Rack::Utils.parse_query(query, "&")[session_key].to_s
       end
 
-      def page_warrants_cookie?
-        exclude_formats.exclude? path_parameters[:format].to_s
-      end
-
       def path_parameters
         env['action_dispatch.request.path_parameters'] || {}
       end
 
       def exclude_formats
-        %{css js xml}.merge @options[:exclude_formats]
+        (%w{css js xml} + [@options[:exclude_formats]].flatten).compact.uniq
+      end
+
+      def page_warrants_cookie?
+        !exclude_formats.include? path_parameters[:format].to_s
       end
 
       def cache_cookie_by_session_id(session_id, cookie)
         cache_store.write(generate_cache_id(session_id), cookie)
       end
 
-      def fix_url(ref,session_id)
-        if ref
-          ref .replace convert_url(ref,session_id)
-        end
-      end
-
       def convert_url(url, session_id)
         uri = URI.parse(URI.escape(url))
-        if uri.scheme.blank? || uri.scheme.to_s =~ /http/
+        if uri.scheme.empty? || uri.scheme.to_s =~ /http/
           query = Rack::Utils.parse_query(uri.query)
           uri.query = Rack::Utils.build_query(query.merge({session_key => session_id}))
         end
         uri.to_s
+      end
+
+      def fix_url(ref,session_id)
+        if ref
+          ref .replace convert_url(ref,session_id)
+        end
       end
 
       def process_page?
