@@ -66,6 +66,11 @@ describe "Functions" do
       @testclass.env["QUERY_STRING"] = "si=query"
       @testclass.get_session_id.should == "query"
     end
+    it "handles referers with special characters" do
+      @testclass.options[:session_id] = :si
+      @testclass.env["HTTP_REFERER"] = "http://mysearch.avg.com/?cid={2FE739F5-7A80-4FA5-9B65-7ADE10D3ADFC}&mid=1b06ffb2836747d39d0b9d3bff774cdd-afd01f4fcd66c4f49bbc5334adc3c307cf96ffe9&lang=nl&ds=AVG&pr=fr&d=2013-05-10%2015:09:11&v=15.1.0.2&pid=safeguard&sg=2&sap=hp"
+      @testclass.get_session_id.should == ""   
+    end
   end
 
   describe "#remote_ip" do

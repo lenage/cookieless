@@ -17,7 +17,7 @@ module Rack
         session_id = get_session_id_from_query(env["rack.request.form_vars"])
         return session_id unless session_id.empty?
         if env["HTTP_REFERER"]
-          query = URI.parse(env["HTTP_REFERER"]).query
+          query = URI.parse(URI.encode(env["HTTP_REFERER"])).query rescue ""
           get_session_id_from_query(query)
         end
       end
