@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cookieless (0.3.0)
+    cookieless (0.4.0)
       nokogiri
 
 GEM
