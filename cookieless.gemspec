@@ -24,5 +24,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '2.12.0'
   gem.add_development_dependency 'capybara', '1.1.4'
   gem.add_development_dependency 'racktest_cookie_disabler'
-  gem.add_development_dependency 'rails', '3.2.12'
+  gem.add_development_dependency 'rails', '3.2.13'
 end
