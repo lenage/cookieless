@@ -124,6 +124,10 @@ describe "Functions" do
         @testclass.set_cookie_by_session_id("key")
         @testclass.env["HTTP_COOKIE"].should== "I am cached"
       end
+      it "does nothing if the session_id is empty" do
+        @testclass.set_cookie_by_session_id("")
+        @testclass.env.keys.include?("HTTP_COOKIE").should be_false
+      end
   end
 
   describe "#session_key" do

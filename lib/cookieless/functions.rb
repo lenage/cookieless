@@ -48,6 +48,7 @@ module Rack
       end
 
       def set_cookie_by_session_id(session_id)
+        return if session_id.nil? || session_id.empty?
         cache_id = generate_cache_id(session_id)
         env["HTTP_COOKIE"] = get_cached_entry(cache_id)
       end
