@@ -73,6 +73,12 @@ module Rack
         !exclude_formats.include? path_parameters[:format].to_s
       end
 
+      def unify_cookies(cookies)
+        if cookies
+          cookies.split("\n").map { |x| x.split(";").first }.join(";")
+        end
+      end
+
       def cache_cookie_by_session_id(session_id, cookie)
         cache_store.write(generate_cache_id(session_id), cookie) if cookie
       end
@@ -87,9 +93,7 @@ module Rack
       end
 
       def fix_url(ref,session_id)
-        if ref
-          ref.replace convert_url(ref,session_id)
-        end
+        ref.replace(convert_url(ref,session_id))  if ref
       end
 
       def process_page?(header)
@@ -114,7 +118,7 @@ module Rack
           a["href"] = convert_url(a["href"],session_id) if a['href']
         end
         doc
-      end
+     end
 
       def process_form(doc, session_id)
         doc.css("form").map do |form|

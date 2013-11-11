@@ -25,7 +25,8 @@ module Rack
           begin
             if page_warrants_cookie?
               session_id ||= env["rack.session"]["session_id"]
-              cache_cookie_by_session_id(session_id, header["Set-Cookie"])
+              cookies = unify_cookies header["Set-Cookie"]
+              cache_cookie_by_session_id(session_id, cookies)
               fix_url(header["Location"],session_id)
               if process_page?(header)
                 if page_has_body?(response)

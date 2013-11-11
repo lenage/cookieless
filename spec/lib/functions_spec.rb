@@ -69,7 +69,7 @@ describe "Functions" do
     it "handles referers with special characters" do
       @testclass.options[:session_id] = :si
       @testclass.env["HTTP_REFERER"] = "http://mysearch.avg.com/?cid={2FE739F5-7A80-4FA5-9B65-7ADE10D3ADFC}&mid=1b06ffb2836747d39d0b9d3bff774cdd-afd01f4fcd66c4f49bbc5334adc3c307cf96ffe9&lang=nl&ds=AVG&pr=fr&d=2013-05-10%2015:09:11&v=15.1.0.2&pid=safeguard&sg=2&sap=hp"
-      @testclass.get_session_id.should == ""   
+      @testclass.get_session_id.should == ""
     end
   end
 
@@ -222,6 +222,19 @@ describe "Functions" do
       header = {"Content-Type" => "application/pdf"}
       @testclass.process_page?(header).should == false
     end
+  end
+
+  describe "#unify_cookies" do
+    it "mutiply set_cookies" do
+      set_cookies = "__utmmobile=0xc9d7e6045084ceae; path=/; expires=Tue, 11-Nov-2014 15:18:57 GMT\n_site_session=BAh7DiIPZ; path=/; HttpOnly"
+      @testclass.unify_cookies(set_cookies).should == "__utmmobile=0xc9d7e6045084ceae;_site_session=BAh7DiIPZ"
+    end
+
+    it "single set-cookies" do
+      set_cookies = "__utmmobile=0xc9d7e6045084ceae; path=/; expires=Tue, 11-Nov-2014 15:18:57 GMT"
+      @testclass.unify_cookies(set_cookies).should == "__utmmobile=0xc9d7e6045084ceae"
+    end
+
   end
 
   describe "#page_has_body?" do
