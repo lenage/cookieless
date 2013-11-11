@@ -88,7 +88,7 @@ module Rack
 
       def fix_url(ref,session_id)
         if ref
-          ref .replace convert_url(ref,session_id)
+          ref.replace convert_url(ref,session_id)
         end
       end
 
