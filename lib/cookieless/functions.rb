@@ -111,7 +111,7 @@ module Rack
 
      def process_href(doc, session_id)
         doc.css("a").map do |a|
-          a["href"] = convert_url(a["href"],session_id)
+          a["href"] = convert_url(a["href"],session_id) if a['href']
         end
         doc
       end
